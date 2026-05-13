@@ -1,618 +1,660 @@
-# \# NixBuildTesting
+\# NixBuildTesting
 
-# 
 
-# A tiny Rust hello-world project used to test building Rust applications with \*\*Nix\*\*.
 
-# 
+A tiny Rust hello-world project used to test building Rust applications with \*\*Nix\*\*.
 
-# The program simply prints:
 
-# 
 
-# ```text
+The program prints:
 
-# I was built in nix!
 
-# ```
 
-# 
+```text
 
-# The goal of this repo is not the Rust application itself. The goal is to demonstrate a reproducible build setup where Nix provides the Rust toolchain, build tools, and optional cross-compilation environment.
+I was built in nix!
 
-# 
+```
 
-# ---
 
-# 
 
-# \## What this project demonstrates
+The purpose of this repo is not the Rust application itself. The purpose is to demonstrate how Nix can provide a reproducible Rust build environment with pinned toolchains, build tools, and optional cross-compilation support.
 
-# 
 
-# This repo shows how to use Nix to control the build environment for a Rust project.
 
-# 
+---
 
-# Instead of relying on whatever Rust/Cargo/toolchain happens to be installed on the host machine, the project defines those tools in `flake.nix`.
 
-# 
 
-# Nix provides:
+\## What this project demonstrates
 
-# 
 
-# \- a pinned Rust toolchain
 
-# \- Cargo
+This project shows how to use Nix to control the build environment for a Rust project.
 
-# \- rustfmt
 
-# \- clippy
 
-# \- cargo-nextest
+Instead of relying on whatever Rust, Cargo, Clippy, or linker happens to be installed on the host machine, the project defines the build environment in `flake.nix`.
 
-# \- cargo-audit
 
-# \- cargo-deny
 
-# \- Linux build tooling
+Nix provides:
 
-# \- optional Windows GNU cross-compilation tooling
 
-# 
 
-# The lock files are important:
+\* A pinned Rust toolchain
 
-# 
+\* Cargo
 
-# | File | Purpose |
+\* rustfmt
 
-# |---|---|
+\* clippy
 
-# | `Cargo.lock` | Pins Rust crate dependency resolution |
+\* cargo-nextest
 
-# | `flake.lock` | Pins the Nix inputs, including `nixpkgs` and the Rust overlay |
+\* cargo-audit
 
-# | `flake.nix` | Defines the build environment and available build shells |
+\* cargo-deny
 
-# 
+\* Linux build tooling
 
-# ---
+\* Optional Windows GNU cross-compilation tooling
 
-# 
 
-# \## Project structure
 
-# 
+The important files are:
 
-# ```text
 
-# NixBuildTesting/
 
-# &nbsp; Cargo.toml
+| File         | Purpose                                                       |
 
-# &nbsp; Cargo.lock
+| ------------ | ------------------------------------------------------------- |
 
-# &nbsp; flake.nix
+| `Cargo.toml` | Defines the Rust package                                      |
 
-# &nbsp; flake.lock
+| `Cargo.lock` | Pins Rust crate dependency resolution                         |
 
-# &nbsp; src/
+| `flake.nix`  | Defines the Nix build environment                             |
 
-# &nbsp;   main.rs
+| `flake.lock` | Pins the Nix inputs, including `nixpkgs` and the Rust overlay |
 
-# ```
 
-# 
 
-# The Rust application is intentionally minimal:
+---
 
-# 
 
-# ```rust
 
-# fn main() {
+\## Project structure
 
-# &nbsp;   println!("I was built in nix!");
 
-# }
 
-# ```
+```text
 
-# 
+NixBuildTesting/
 
-# ---
+&nbsp; Cargo.toml
 
-# 
+&nbsp; Cargo.lock
 
-# \## Requirements
+&nbsp; flake.nix
 
-# 
+&nbsp; flake.lock
 
-# You need Nix installed with flakes enabled.
+&nbsp; src/
 
-# 
+&nbsp;   main.rs
 
-# On WSL/Linux, make sure this is configured:
+```
 
-# 
 
-# ```bash
 
-# mkdir -p ~/.config/nix
+The Rust application is intentionally minimal:
 
-# echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 
-# ```
 
-# 
+```rust
 
-# Then restart your shell.
+fn main() {
 
-# 
+&nbsp;   println!("I was built in nix!");
 
-# Verify Nix works:
+}
 
-# 
+```
 
-# ```bash
 
-# nix --version
 
-# ```
+---
 
-# 
 
-# ---
 
-# 
+\## Requirements
 
-# \## Enter the Linux dev shell
 
-# 
 
-# ```bash
+You need Nix installed with flakes enabled.
 
-# nix develop
 
-# ```
 
-# 
+On WSL/Linux, make sure flakes are enabled:
 
-# This enters the default Nix development shell.
 
-# 
 
-# You should see output showing the Nix-provided Rust and Cargo paths.
+```bash
 
-# 
+mkdir -p ~/.config/nix
 
-# Inside the shell, you can run normal Rust commands:
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
 
-# 
+```
 
-# ```bash
 
-# cargo build --locked
 
-# cargo run --locked
+Restart your shell, then verify Nix is available:
 
-# cargo test --locked
 
-# cargo clippy --locked --all-targets --all-features
 
-# cargo fmt --check
+```bash
 
-# ```
+nix --version
 
-# 
+```
 
-# Exit the shell with:
 
-# 
 
-# ```bash
+---
 
-# exit
 
-# ```
 
-# 
+\## Enter the Linux development shell
 
-# ---
 
-# 
 
-# \## Build the Linux binary with Nix
+```bash
 
-# 
+nix develop
 
-# ```bash
+```
 
-# nix build
 
-# ```
 
-# 
+This enters the default Nix development shell.
 
-# This builds the default Nix package.
 
-# 
 
-# The output appears at:
+Inside the shell, Rust and related tools come from Nix rather than from the host system.
 
-# 
 
-# ```text
 
-# result/bin/buildFromNix
+Useful checks:
 
-# ```
 
-# 
 
-# Run it:
+```bash
 
-# 
+which rustc
 
-# ```bash
+which cargo
 
-# ./result/bin/buildFromNix
+rustc --version
 
-# ```
+cargo --version
 
-# 
+```
 
-# Expected output:
 
-# 
 
-# ```text
+Run normal Rust commands inside the shell:
 
-# I was built in nix!
 
-# ```
 
-# 
+```bash
 
-# ---
+cargo build --locked
 
-# 
+cargo run --locked
 
-# \## Build Linux with Cargo inside the Nix shell
+cargo test --locked
 
-# 
+cargo clippy --locked --all-targets --all-features
 
-# ```bash
+cargo fmt --check
 
-# nix develop -c cargo build --release --locked
+```
 
-# ```
 
-# 
 
-# Output:
+Exit the shell with:
 
-# 
 
-# ```text
 
-# target/release/buildFromNix
+```bash
 
-# ```
+exit
 
-# 
+```
 
-# Run it:
 
-# 
 
-# ```bash
+---
 
-# ./target/release/buildFromNix
 
-# ```
 
-# 
+\## Build the Linux binary with Nix
 
-# ---
 
-# 
 
-# \## Build a Windows `.exe`
+```bash
 
-# 
+nix build
 
-# This project also defines a separate Windows GNU cross-build shell.
+```
 
-# 
 
-# Use:
 
-# 
+This builds the default Nix package.
 
-# ```bash
 
-# nix develop .#windows -c cargo build --release --locked --target x86\_64-pc-windows-gnu
 
-# ```
+The output appears under:
 
-# 
 
-# Output:
 
-# 
+```text
 
-# ```text
+result/bin/
 
-# target/x86\_64-pc-windows-gnu/release/buildFromNix.exe
+```
 
-# ```
 
-# 
 
-# This produces a Windows GNU executable from WSL/Linux.
+For this project, run:
 
-# 
 
-# Note: this is not the same as the MSVC target. For simple Rust programs, the GNU target is usually fine. For Windows-native projects that depend on MSVC-specific tooling or libraries, a dedicated Windows/MSVC build setup may be needed.
 
-# 
+```bash
 
-# ---
+./result/bin/buildFromNix
 
-# 
+```
 
-# \## Build both Linux and Windows artifacts
 
-# 
 
-# ```bash
+Expected output:
 
-# mkdir -p dist
 
-# 
 
-# nix build
+```text
 
-# cp -L result/bin/buildFromNix dist/buildFromNix-linux
+I was built in nix!
 
-# 
+```
 
-# nix develop .#windows -c cargo build --release --locked --target x86\_64-pc-windows-gnu
 
-# cp target/x86\_64-pc-windows-gnu/release/buildFromNix.exe dist/buildFromNix-windows.exe
 
-# 
+---
 
-# ls -lah dist
 
-# ```
 
-# 
+\## Build Linux with Cargo inside the Nix shell
 
-# Expected result:
 
-# 
 
-# ```text
+```bash
 
-# dist/
+nix develop -c cargo build --release --locked
 
-# &nbsp; buildFromNix-linux
+```
 
-# &nbsp; buildFromNix-windows.exe
 
-# ```
 
-# 
+Output:
 
-# ---
 
-# 
 
-# \## Useful commands
+```text
 
-# 
+target/release/buildFromNix
 
-# \### Enter default Linux shell
+```
 
-# 
 
-# ```bash
 
-# nix develop
+Run it:
 
-# ```
 
-# 
 
-# \### Enter Windows cross-build shell
+```bash
 
-# 
+./target/release/buildFromNix
 
-# ```bash
+```
 
-# nix develop .#windows
 
-# ```
 
-# 
+---
 
-# \### Build Linux package
 
-# 
 
-# ```bash
+\## Build a Windows executable
 
-# nix build
 
-# ```
 
-# 
+This project also defines a separate Windows GNU cross-build shell.
 
-# \### Run checks
 
-# 
 
-# ```bash
+Use:
 
-# nix flake check
 
-# ```
 
-# 
+```bash
 
-# \### Run cargo-nextest
+nix develop .#windows -c cargo build --release --locked --target x86\_64-pc-windows-gnu
 
-# 
+```
 
-# ```bash
 
-# nix develop -c cargo nextest run --locked
 
-# ```
+Output:
 
-# 
 
-# \### Generate docs
 
-# 
+```text
 
-# ```bash
+target/x86\_64-pc-windows-gnu/release/buildFromNix.exe
 
-# nix develop -c cargo doc --locked --no-deps
+```
 
-# ```
 
-# 
 
-# ---
+This produces a Windows GNU executable from WSL/Linux.
 
-# 
 
-# \## Notes for Windows/WSL users
 
-# 
+This is not the same as the MSVC target. For simple Rust programs, the GNU target is usually fine. For Windows-native projects that depend on MSVC-specific tooling or libraries, a dedicated Windows/MSVC build setup may be needed.
 
-# This project works best when the repo is stored inside the WSL filesystem, for example:
 
-# 
 
-# ```text
+---
 
-# ~/src/NixBuildTesting
 
-# ```
 
-# 
+\## Build both Linux and Windows artifacts
 
-# Rather than directly under:
 
-# 
 
-# ```text
+```bash
 
-# /mnt/c/...
+mkdir -p dist
 
-# /mnt/g/...
 
-# ```
 
-# 
+nix build
 
-# Building from `/mnt/c` or `/mnt/g` can work, but filesystem performance is usually worse and Windows line endings can sometimes cause shell issues.
+cp -L result/bin/buildFromNix dist/buildFromNix-linux
 
-# 
 
-# If you see this error:
 
-# 
+nix develop .#windows -c cargo build --release --locked --target x86\_64-pc-windows-gnu
 
-# ```text
+cp target/x86\_64-pc-windows-gnu/release/buildFromNix.exe dist/buildFromNix-windows.exe
 
-# bash: $'\\r': command not found
 
-# ```
 
-# 
+ls -lah dist
 
-# normalize the line endings:
+```
 
-# 
 
-# ```bash
 
-# sed -i 's/\\r$//' flake.nix
+Expected result:
 
-# ```
 
-# 
 
-# It is also useful to add a `.gitattributes` file:
+```text
 
-# 
+dist/
 
-# ```text
+&nbsp; buildFromNix-linux
 
-# \*.nix text eol=lf
+&nbsp; buildFromNix-windows.exe
 
-# \*.sh text eol=lf
+```
 
-# flake.lock text eol=lf
 
-# ```
 
-# 
+---
 
-# ---
 
-# 
 
-# \## Why use Nix here?
+\## Useful commands
 
-# 
 
-# Nix makes the build environment explicit.
 
-# 
+\### Enter the default Linux shell
 
-# Instead of saying:
 
-# 
 
-# > Install Rust, Cargo, Clippy, Nextest, MinGW, OpenSSL, CMake, and make sure the versions are compatible.
+```bash
 
-# 
+nix develop
 
-# The repo says:
+```
 
-# 
 
-# > Run `nix develop` or `nix build`.
 
-# 
+\### Enter the Windows cross-build shell
 
-# That makes the build process easier to reproduce across machines.
 
-# 
 
-# The important idea is:
+```bash
 
-# 
+nix develop .#windows
 
-# ```text
+```
 
-# Cargo.lock controls Rust dependency versions.
 
-# flake.lock controls Nix/toolchain/package inputs.
 
-# flake.nix defines the build environment.
+\### Build the default Linux package
 
-# ```
 
-# 
 
-# This repo is a small test project for that workflow.
+```bash
+
+nix build
+
+```
+
+
+
+\### Run flake checks
+
+
+
+```bash
+
+nix flake check
+
+```
+
+
+
+\### Run tests with cargo-nextest
+
+
+
+```bash
+
+nix develop -c cargo nextest run --locked
+
+```
+
+
+
+\### Generate docs
+
+
+
+```bash
+
+nix develop -c cargo doc --locked --no-deps
+
+```
+
+
+
+\### Run Clippy
+
+
+
+```bash
+
+nix develop -c cargo clippy --locked --all-targets --all-features -- -D warnings
+
+```
+
+
+
+\### Check formatting
+
+
+
+```bash
+
+nix develop -c cargo fmt --check
+
+```
+
+
+
+---
+
+
+
+\## Notes for Windows and WSL users
+
+
+
+This project works best when stored inside the WSL filesystem, for example:
+
+
+
+```text
+
+~/src/NixBuildTesting
+
+```
+
+
+
+Rather than directly under a Windows-mounted path such as:
+
+
+
+```text
+
+/mnt/c/...
+
+/mnt/g/...
+
+```
+
+
+
+Building from `/mnt/c` or `/mnt/g` can work, but filesystem performance is usually worse, and Windows line endings can sometimes cause shell issues.
+
+
+
+If you see this error:
+
+
+
+```text
+
+bash: $'\\r': command not found
+
+```
+
+
+
+normalize the line endings:
+
+
+
+```bash
+
+sed -i 's/\\r$//' flake.nix
+
+```
+
+
+
+It is also useful to add a `.gitattributes` file:
+
+
+
+```text
+
+\*.nix text eol=lf
+
+\*.sh text eol=lf
+
+flake.lock text eol=lf
+
+```
+
+
+
+---
+
+
+
+\## Why use Nix here?
+
+
+
+Nix makes the build environment explicit.
+
+
+
+Instead of saying:
+
+
+
+> Install Rust, Cargo, Clippy, Nextest, MinGW, OpenSSL, CMake, and make sure the versions are compatible.
+
+
+
+The repo says:
+
+
+
+> Run `nix develop` or `nix build`.
+
+
+
+That makes the build process easier to reproduce across machines.
+
+
+
+The important idea is:
+
+
+
+```text
+
+Cargo.lock controls Rust dependency versions.
+
+flake.lock controls Nix/toolchain/package inputs.
+
+flake.nix defines the build environment.
+
+```
+
+
+
+This repo is a small test project for that workflow.
+
+
 
