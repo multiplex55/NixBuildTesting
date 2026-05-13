@@ -42,23 +42,23 @@ Nix provides:
 
 
 
-\* A pinned Rust toolchain
+\- A pinned Rust toolchain
 
-\* Cargo
+\- Cargo
 
-\* rustfmt
+\- rustfmt
 
-\* clippy
+\- clippy
 
-\* cargo-nextest
+\- cargo-nextest
 
-\* cargo-audit
+\- cargo-audit
 
-\* cargo-deny
+\- cargo-deny
 
-\* Linux build tooling
+\- Linux build tooling
 
-\* Optional Windows GNU cross-compilation tooling
+\- Optional Windows GNU cross-compilation tooling
 
 
 
@@ -66,15 +66,15 @@ The important files are:
 
 
 
-| File         | Purpose                                                       |
+| File | Purpose |
 
-| ------------ | ------------------------------------------------------------- |
+|---|---|
 
-| `Cargo.toml` | Defines the Rust package                                      |
+| `Cargo.toml` | Defines the Rust package |
 
-| `Cargo.lock` | Pins Rust crate dependency resolution                         |
+| `Cargo.lock` | Pins Rust crate dependency resolution |
 
-| `flake.nix`  | Defines the Nix build environment                             |
+| `flake.nix` | Defines the Nix build environment |
 
 | `flake.lock` | Pins the Nix inputs, including `nixpkgs` and the Rust overlay |
 
